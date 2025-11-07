@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-TABLE">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amigo Secreto da Galera</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .image-gallery img {
+            width: 30%; /* Três imagens lado a lado */
+            margin: 1.5%;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        select, button {
+            font-size: 1.1em;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            margin-top: 30px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            min-height: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Amigo Secreto da Galera</h1>
+
+        <div class="image-gallery">
+            <img src="URL_DA_SUA_IMAGEM_1_AQUI" alt="Lembrança 1">
+            <img src="URL_DA_SUA_IMAGEM_2_AQUI" alt="Lembrança 2">
+            <img src="URL_DA_SUA_IMAGEM_3_AQUI" alt="Lembrança 3">
+        </div>
+        <hr style="margin: 30px 0;">
+
+        <h2>Quem é você?</h2>
+        <p>Selecione seu nome para descobrir quem você tirou!</p>
+
+        <select id="nameSelector">
+            <option value="">-- Escolha seu nome --</option>
+            
+            {% for name in participants %}
+            <option value="{{ name }}">{{ name }}</option>
+            {% endfor %}
+        </select>
+
+        <button onclick="revealFriend()">Revelar!</button>
+
+        <div id="result">
+            </div>
+    </div>
+
+    <script>
+        async function revealFriend() {
+            const name = document.getElementById('nameSelector').value;
+            const resultDiv = document.getElementById('result');
+            
+            if (!name) {
+                resultDiv.textContent = 'Por favor, selecione seu nome primeiro.';
+                resultDiv.style.color = 'red';
+                return;
+            }
+
+            // Mostra uma mensagem de carregamento
+            resultDiv.textContent = 'Sorteando... 🤫';
+            resultDiv.style.color = '#555';
+
+            try {
+                // Faz a "chamada de API" para o nosso backend
+                // Usamos encodeURIComponent para lidar com nomes com espaço
+                const response = await fetch(`/get-assignment?name=${encodeURIComponent(name)}`);
+                const data = await response.json();
+                
+                if (data.error) {
+                    resultDiv.textContent = `Erro: ${data.error}`;
+                    resultDiv.style.color = 'red';
+                } else {
+                    // Sucesso!
+                    resultDiv.textContent = `Você tirou: ${data.secret_friend}!`;
+                    resultDiv.style.color = 'green';
+                }
+
+            } catch (error) {
+                console.error('Erro ao buscar:', error);
+                resultDiv.textContent = 'Ocorreu um erro ao contatar o servidor.';
+                resultDiv.style.color = 'red';
+            }
+        }
+    </script>
+
+</body>
+</html>
